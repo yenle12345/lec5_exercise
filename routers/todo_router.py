@@ -5,20 +5,17 @@ from typing import Optional
 from sqlalchemy.orm import Session
 from database import SessionLocal
 from schemas import todo_schema
+from dependencies.auth import get_current_user
+from database import get_db
+
 
 router = APIRouter( prefix = '/api/v1/todos', tags = ['todos'])
 
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
 @router.post("/todos")
-def create_todo(todo: Todo, db: Session = Depends(get_db)):
-    return todo_service.create_todo(db, todo)
+def create_todo(todo: Todo, 
+                db: Session = Depends(get_db),
+                user = Depends(get_current_user)):
+    return todo_service.create_todo(db, todo, user)
 
 @router.get("/todos")
 def get_todos(db: Session = Depends(get_db)):

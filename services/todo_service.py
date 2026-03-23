@@ -6,8 +6,8 @@ from repositories import todo_repository
 def get_todos(db):
     return todo_repository.get_all(db)
 
-def create_todo(db, todo: Todo):
-    return todo_repository.create_todos(db, todo)
+def create_todo(db, todo: Todo, user):
+    return todo_repository.create_todos(db, todo, user_id = user.id)
 
 def get_todo(db,todo_id: int):
     return todo_repository.get_by_id(db,todo_id)

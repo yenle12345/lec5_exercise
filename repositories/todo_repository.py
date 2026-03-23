@@ -1,14 +1,14 @@
 from typing import  List
 
 from sqlalchemy.orm import Session
-from models import Todo as TodoModel
+from models.models import Todo as TodoModel
 
 
 def get_all(db: Session):
     return db.query(TodoModel).all()
 
-def create_todos(db: Session,todo):
-    new_todo = TodoModel(**todo.model_dump())
+def create_todos(db: Session,todo, user_id):
+    new_todo = TodoModel(**todo.model_dump(), owner_id = user_id)
     db.add(new_todo)
     db.commit()
     db.refresh(new_todo)
