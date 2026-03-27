@@ -15,9 +15,9 @@ router = APIRouter( prefix = '/api/v1/todos', tags = ['todos'])
 def create_todo(todo: Todo, 
                 db: Session = Depends(get_db),
                 user = Depends(get_current_user)):
-    return todo_service.create_todo(db, todo, user)
+    return todo_service.create_todo_tags(db, todo, user.id)
 
-@router.get("/todos")
+@router.get("/todos", response_model=list[todo_schema.TodoResponse])
 def get_todos(db: Session = Depends(get_db)):
     return todo_service.get_todos(db)
 
@@ -42,16 +42,6 @@ def delete_todo(id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Todo not found")
     return todo
 
-@router.get("/todos")
-def get_todos(
-    is_done: Optional[bool] = None,
-    q: Optional[str] = None,
-    sort: Optional[str] = None,
-    limit: int = Query(10),
-    offset: int = Query(0),
-    db: Session = Depends(get_db)
-):
-    return todo_service.get_todos(db, is_done, q, sort, limit, offset)
 
 @router.patch("/{id}", response_model = todo_schema.TodoResponse)
 def update_todo(id: int, data: todo_schema.TodoUpdate, db: Session = Depends(get_db)):
@@ -65,3 +55,12 @@ def update_todo(id: int, data: todo_schema.TodoUpdate, db: Session = Depends(get
 @router.post("/{id}/complete", response_model=todo_schema.TodoResponse)
 def complete_todo(id: int, db: Session = Depends(get_db)):
     return todo_service.complete_todo_service(db, id)
+
+
+@router.get("/overdue", response_model=list[todo_schema.TodoResponse])
+def read_overdue_todos(db: Session = Depends(get_db)):
+    return todo_service.get_overdue_todos(db)
+
+@router.get("/today", response_model=list[todo_schema.TodoResponse])
+def read_today_todos(db: Session = Depends(get_db)):
+    return todo_service.get_today_todos(db)

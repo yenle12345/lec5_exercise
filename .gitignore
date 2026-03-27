@@ -1,0 +1,15 @@
+# Cache của Python (không cần thiết trên Git)
+**/__pycache__/
+*.py[cod]
+
+# File database (nếu đẩy lên sẽ bị lộ dữ liệu hoặc ghi đè dữ liệu người khác)
+*.db
+*.sqlite3
+
+# Thư mục môi trường ảo
+.venv/
+env/
+venv/
+
+# Cấu hình riêng của VS Code
+.vscode/

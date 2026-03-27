@@ -2,12 +2,25 @@ from schemas.todo_schema import Todo
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
 from repositories import todo_repository
+from datetime import datetime, date, time
+from models.models import Todo as TodoModel
 
 def get_todos(db):
     return todo_repository.get_all(db)
 
-def create_todo(db, todo: Todo, user):
-    return todo_repository.create_todos(db, todo, user_id = user.id)
+def create_todo_tags(db, todo: Todo, user_id):
+    tags = []
+    for tag_name in todo.tags:
+        tag = todo_repository.get_tag_name(db, tag_name)
+        if not tag:
+            tag = todo_repository.create_tag(db, tag_name)
+        tags.append(tag)
+    
+    new_todo = todo_repository.create_todos(db, todo.model_dump(exclude={"tags"}), user_id, tags)
+    todo_repository.save(db)
+    todo_repository.refresh(db, new_todo)
+
+    return new_todo
 
 def get_todo(db,todo_id: int):
     return todo_repository.get_by_id(db,todo_id)
@@ -65,3 +78,21 @@ def complete_todo_service(db: Session, todo_id: int):
         raise HTTPException(status_code=404, detail="Todo not found")
 
     return todo_repository.complete_todo(db, todo)
+
+
+def get_overdue_todos(db: Session):
+    now = datetime.now()
+    return todo_repository.get_todos_by_filter(
+        db, 
+        filter_condition=(TodoModel.due_date < now) & (TodoModel.is_done == False)
+    )
+
+def get_today_todos(db: Session):
+    # Logic: Lấy các task có due_date nằm trong ngày hôm nay (00:00:00 -> 23:59:59)
+    today_start = datetime.combine(date.today(), time.min)
+    today_end = datetime.combine(date.today(), time.max)
+    
+    return todo_repository.get_todos_by_filter(
+        db,
+        filter_condition=TodoModel.due_date.between(today_start, today_end)
+    )

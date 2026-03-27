@@ -1,22 +1,24 @@
 from typing import  List
 
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from models.models import Todo as TodoModel
-
+from models.models import Tag
+from datetime import date, date, time
 
 def get_all(db: Session):
     return db.query(TodoModel).all()
 
-def create_todos(db: Session,todo, user_id):
-    new_todo = TodoModel(**todo.model_dump(), owner_id = user_id)
+def create_todos(db: Session,todo, user_id, tags: list):
+    new_todo = TodoModel(**todo, owner_id = user_id, tags = tags)
     db.add(new_todo)
-    db.commit()
-    db.refresh(new_todo)
     
     return new_todo
 
 def get_by_id(db: Session, todo_id: int):
-    return db.query(TodoModel).filter(TodoModel.id == todo_id).first()
+    return db.query(TodoModel)\
+        .options(joinedload(TodoModel.tags))\
+        .filter(TodoModel.id == todo_id)\
+        .first()
 
 
 
@@ -65,3 +67,23 @@ def complete_todo(db: Session, todo):
 
     return todo
 
+def create_tag(db, name: str):
+    tag = Tag(name = name)
+    db.add(tag)
+    return tag
+
+def get_tag_name(db, name: str):
+    return db.query(Tag).filter(Tag.name == name).first()
+
+def save(db):
+    db.commit()
+
+def refresh(db: Session, obj):
+    db.refresh(obj)
+
+
+def get_todos_by_filter(db: Session, filter_condition):
+    return db.query(TodoModel)\
+        .options(joinedload(TodoModel.tags))\
+        .filter(filter_condition)\
+        .all()

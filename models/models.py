@@ -1,7 +1,14 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Table
+from sqlalchemy.orm import relationship
 from datetime import datetime
 from database import Base
 
+todo_tags = Table(
+    "todo_tags",
+    Base.metadata,
+    Column("todo_id", Integer, ForeignKey("todos.id"), primary_key=True),
+    Column("tags_id", Integer, ForeignKey("tags.id"), primary_key=True)
+)
 class Todo(Base):
     __tablename__ = "todos"
 
@@ -13,8 +20,20 @@ class Todo(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     completed = Column(Boolean, default=False)
-    
-    owner_id = Column(Integer, ForeignKey('users.id'))
+    due_date = Column(DateTime, nullable=True)
+    tags = relationship("Tag", secondary=todo_tags, back_populates="todos")
+
+    owner_id = Column(Integer, ForeignKey('users.id')
+    )
+
+
+class Tag(Base):
+    __tablename__ = "tags"
+    id = Column(Integer, primary_key=True, index= True)
+    name = Column(String, unique = True, index = True)
+
+    todos = relationship("Todo", secondary = todo_tags, back_populates="tags")
+
 
 class User(Base):
     __tablename__ = "users"
