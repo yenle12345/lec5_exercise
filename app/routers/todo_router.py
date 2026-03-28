@@ -1,12 +1,12 @@
 from fastapi import APIRouter, HTTPException, Query, Depends
-from schemas.todo_schema import Todo
-from services import todo_service
+from app.schemas.todo_schema import TodoCreate as Todo
+from app.services import todo_service
 from typing import Optional
 from sqlalchemy.orm import Session
-from database import SessionLocal
-from schemas import todo_schema
-from dependencies.auth import get_current_user
-from database import get_db
+from app.database import SessionLocal
+from app.schemas import todo_schema
+from app.dependencies.auth import get_current_user
+from app.database import get_db
 
 
 router = APIRouter( prefix = '/api/v1/todos', tags = ['todos'])

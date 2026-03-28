@@ -1,8 +1,8 @@
 from fastapi import FastAPI, HTTPException, Query
-from routers.todo_router import router as todo
-from routers.auth import router as auth
-from models.models import User, Todo
-from database import Base, engine
+from app.routers.todo_router import router as todo
+from app.routers.auth import router as auth
+from app.models.models import User, Todo
+from app.database import Base, engine
 
 app = FastAPI()
 

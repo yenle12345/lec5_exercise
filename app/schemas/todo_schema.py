@@ -1,12 +1,10 @@
 from datetime import datetime
-from pydantic import BaseModel, Field, computed_field
+from pydantic import BaseModel, ConfigDict, Field, computed_field
 from typing import Optional, List
 
-class Todo(BaseModel):
-    id: int
+class TodoCreate(BaseModel):
     title: str = Field(..., min_length=3, max_length=100)
     is_done: bool = False
-    created_at: datetime
     due_date: Optional[datetime] = None
     tags: List[str] = []
 
@@ -27,14 +25,7 @@ class TodoResponse(BaseModel):
     @computed_field
     @property
     def tag_list(self) -> List[str]:
-        # Kiểm tra xem 'tags' (quan hệ từ DB) có tồn tại không
-        # Lưu ý: Ta dùng tên khác 'tag_list' để trả về JSON
-        if hasattr(self, 'tags') and self.tags:
-            return [tag.name for tag in self.tags]
-        return []
-
-    class Config:
-        from_attributes = True
-        # Chặn Pydantic tự động đọc các trường không được khai báo
-        # để tránh nó đụng vào quan hệ 'tags' gây lặp
-        extra = "ignore"
+        # Trả về tên tag nếu có, nếu không trả về list rỗng
+        return [tag.name for tag in self.tags] if getattr(self, 'tags', None) else []
+    
+    model_config = ConfigDict(from_attributes=True)

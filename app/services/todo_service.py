@@ -1,9 +1,9 @@
-from schemas.todo_schema import Todo
+from app.schemas.todo_schema import TodoCreate as Todo
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
-from repositories import todo_repository
+from app.repositories import todo_repository
 from datetime import datetime, date, time
-from models.models import Todo as TodoModel
+from app.models.models import Todo as TodoModel
 
 def get_todos(db):
     return todo_repository.get_all(db)

@@ -1,8 +1,8 @@
 from typing import  List
 
 from sqlalchemy.orm import Session, joinedload
-from models.models import Todo as TodoModel
-from models.models import Tag
+from app.models.models import Todo as TodoModel
+from app.models.models import Tag
 from datetime import date, date, time
 
 def get_all(db: Session):

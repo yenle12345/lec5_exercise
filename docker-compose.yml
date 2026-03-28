@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: todo_postgres
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: todo_db
+    ports:
+      - "5432:5432"
+
+  app:
+    build: .
+    container_name: todo_api
+    volumes:
+      - .:/app  # Gắn toàn bộ thư mục hiện tại vào /app trong container
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    # Đảm bảo lệnh khởi chạy app có thêm --reload
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
